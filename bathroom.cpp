@@ -1,11 +1,19 @@
+// sources:
+//      stoi: https://www.geeksforgeeks.org/cpp/convert-string-to-int-in-cpp/ Accessed 11/8/25
+
+
 #include <pthread.h> 
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <unistd.h>
 #include <semaphore.h>
+#include <string>
 #include "bathroom.h"
 
 int main (int argc, char **argv) {
+
+    bathroomMax = stoi(argv[0]);
+
     pthread_t orc, dwarve, elve;
     pthread_attr_t attr;
     pthread_attr_init(&attr);
@@ -24,19 +32,26 @@ int main (int argc, char **argv) {
 }
 
 void *elves(void *param){
+    int elves = rand() % bathroom
     while(true){
+        sem_wait(&mutex);
 
+        sem_post(&mutex);
     }
 }
 
 void *dwarves(void *param){
     while(true){
+        sem_wait(&mutex);
 
+        sem_post(&mutex);
     } 
 }
 
 void *orcs(void *param){
     while(true){
+        sem_wait(&mutex);
 
+        sem_post(&mutex);
     }
 }

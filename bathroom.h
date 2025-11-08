@@ -8,6 +8,6 @@ void *elves(void *param);
 void *dwarves(void *param);
 void *orcs(void *param);
 
-int bathroom[100];
-sem_t rw_mutex;
+int bathroomMax = 10; //default capacity 10
+sem_t bath_mutex;
 sem_t mutex;
