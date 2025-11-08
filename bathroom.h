@@ -9,5 +9,5 @@ void *dwarves(void *param);
 void *orcs(void *param);
 
 int bathroomMax = 10; //default capacity 10
+sem_t species_mutex;
 sem_t bath_mutex;
-sem_t mutex;
