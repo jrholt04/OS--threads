@@ -18,12 +18,10 @@ Bathroom createBathroom(Bathroom bathroom, int bathMax);
 
 void *elves(void *param);
 void *dwarves(void *param);
-void *orcs(void *param);
 
 Bathroom bathroom;//at the start there are none of either of the elves waiting
 int waitingElves = 0;
 int waitingDwarves = 0;
-int waitingOrcs = 0; 
-int bathMax = 4; //default capacity 10
-sem_t species_mutex[3];
+int bathMax;
+sem_t species_mutex;
 sem_t bath_mutex;
