@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <semaphore.h>
 
+using namespace std;
+
 int shared = rand() % 40;
 int read_count = 0;
 sem_t rw_mutex;
