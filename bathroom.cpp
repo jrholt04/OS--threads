@@ -59,10 +59,18 @@ void *elves(void *param){
 
         if (waitingDwarves > 0){
             countInBath = 0;
+            sem_wait(&printSem);
+            printf("releasing bath mutex \n");
+            sem_post(&printSem);
             sem_post(&bath_mutex);
+            sleep(1);
         }
         else if (countInBath == 0){
+            sem_wait(&printSem);
+            printf("releasing bath mutex \n");
+            sem_post(&printSem);
             sem_post(&bath_mutex);
+            sleep(1);
         }
         sem_post(&elf_mutex);
     }
@@ -94,9 +102,11 @@ void *dwarves(void *param){
         if (waitingElves > 0){
             countInBath = 0;
             sem_post(&bath_mutex);
+            sleep(1);
         }
         else if (countInBath == 0){
             sem_post(&bath_mutex);
+            sleep(1);
         }
         sem_post(&dwarf_mutex);
     }
