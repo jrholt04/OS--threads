@@ -8,7 +8,7 @@
 using namespace std;
 
 struct Bathroom {
-    string currerntSpecies;
+    string currentSpecies;
     int countInBath;
     int bathMax;
 };
@@ -23,5 +23,6 @@ Bathroom bathroom;//at the start there are none of either of the elves waiting
 int waitingElves = 0;
 int waitingDwarves = 0;
 int bathMax;
-sem_t species_mutex;
+sem_t dwarf_mutex;
+sem_t elf_mutex;
 sem_t bath_mutex;
