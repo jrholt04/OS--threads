@@ -21,28 +21,35 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    pthread_t elfThread[bathMax], dwarfThread[bathMax];
+    pthread_t elfThread[bathMax], dwarfThread[bathMax], orcThread[bathMax];
     pthread_attr_t attr;
     pthread_attr_init(&attr);
 
     sem_init(&bath_mutex, 0, 1);
     sem_init(&dwarf_mutex, 0, 1);
     sem_init(&elf_mutex, 0, 1);
+    sem_init(&orc_mutex, 0 , 1);
     sem_init(&printSem, 0, 1);
 
     //create multiple elves and multiple dwarves
-    for (int i = 0; i < 4; i++){
+    for (int i = 0; i < bathMax; i++){
         pthread_create(&elfThread[i], &attr, elves, NULL);
     } 
-    for (int i = 0; i < 4; i++){
+    for (int i = 0; i < bathMax; i++){
         pthread_create(&dwarfThread[i], &attr, dwarves, NULL);
     } 
+    for (int i = 0; i < bathMax; i++){
+        pthread_create(&orcThread[i], &attr, orcs, NULL);
+    } 
     
-    for (int i = 0; i < 4; i++){
+    for (int i = 0; i < bathMax; i++){
         pthread_join(elfThread[i], NULL);
     }
-    for (int i = 0; i < 4; i++){
+    for (int i = 0; i < bathMax; i++){
         pthread_join(dwarfThread[i], NULL);
+    }
+    for (int i = 0; i < bathMax; i++){
+        pthread_join(orcThread[i], NULL);
     }
     
 }
@@ -112,6 +119,41 @@ void *dwarves(void *param){
         }
         
         sem_post(&dwarf_mutex);
+
+        sleep(2);
+    }
+}
+
+void *orcs(void *param){
+    while (true) {
+        sem_wait(&orc_mutex);
+        waitingOrcs++;
+        sem_wait(&printSem);
+        printf("one Orc is waiting to potty\n");
+        sem_post(&printSem);
+        if (waitingOrcs == 1){
+            sem_wait(&bath_mutex);
+        }
+        sem_post(&orc_mutex);
+        
+        countInBath++;  
+        
+        sem_wait(&printSem);
+        printf("Orc is using bathroom (remainind %d)\n", (bathMax - countInBath));
+        sem_post(&printSem);
+        sleep(2);
+
+        sem_wait(&orc_mutex);
+        waitingOrcs--;
+        countInBath--;
+        sem_wait(&printSem);
+        printf("Orc left bathroom (remainind %d)\n", (bathMax - countInBath));
+        sem_post(&printSem);
+        if (waitingOrcs == 0){
+            sem_post(&bath_mutex);
+        }
+        
+        sem_post(&orc_mutex);
 
         sleep(2);
     }
