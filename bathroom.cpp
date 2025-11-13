@@ -13,9 +13,15 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-    bathMax = 4;
+    if (argc >= 2){
+        bathMax = stoi(argv[1]);
+    }
+    else {
+        printf("Usage: ./bathroom <max number in bathroom>\n");
+        exit(1);
+    }
 
-    pthread_t elfThread, dwarfThread;
+    pthread_t elfThread[bathMax], dwarfThread[bathMax];
     pthread_attr_t attr;
     pthread_attr_init(&attr);
 
@@ -24,90 +30,89 @@ int main(int argc, char **argv) {
     sem_init(&elf_mutex, 0, 1);
     sem_init(&printSem, 0, 1);
 
-    //create multiple elves and multiple dwarves 
-    pthread_create(&elfThread, &attr, elves, NULL);
-    pthread_create(&dwarfThread, &attr, dwarves, NULL);
+    //create multiple elves and multiple dwarves
+    for (int i = 0; i < 4; i++){
+        pthread_create(&elfThread[i], &attr, elves, NULL);
+    } 
+    for (int i = 0; i < 4; i++){
+        pthread_create(&dwarfThread[i], &attr, dwarves, NULL);
+    } 
     
-
-    pthread_join(elfThread, NULL);
-    pthread_join(dwarfThread, NULL);
+    for (int i = 0; i < 4; i++){
+        pthread_join(elfThread[i], NULL);
+    }
+    for (int i = 0; i < 4; i++){
+        pthread_join(dwarfThread[i], NULL);
+    }
     
 }
 
 void *elves(void *param){
     while (true) {
-        waitingElves++;
         sem_wait(&elf_mutex);
-        if (!(countInBath == bathMax)){
+        waitingElves++;
+        sem_wait(&printSem);
+        printf("one Elf is waiting to potty\n");
+        sem_post(&printSem);
+        if (waitingElves == 1){
             sem_wait(&bath_mutex);
-            waitingElves--;
-            countInBath++; //if room enter bathroom 
         }
         sem_post(&elf_mutex);
-
+        
+        countInBath++;  
+        
         sem_wait(&printSem);
-        printf("one elf entered %d elfs in bathroom waiting dwarfs: %d\n", countInBath, waitingDwarves);
+        printf("Elf is using bathroom (remainind %d)\n", (bathMax - countInBath));
         sem_post(&printSem);
         sleep(2);
 
         sem_wait(&elf_mutex);
+        waitingElves--;
         countInBath--;
-        
         sem_wait(&printSem);
-        printf("one elf entered %d elfs in bathroom waiting dwarfs: %d\n", countInBath, waitingDwarves);
+        printf("Elf left bathroom (remainind %d)\n", (bathMax - countInBath));
         sem_post(&printSem);
-
-        if (waitingDwarves > 0){
-            countInBath = 0;
-            sem_wait(&printSem);
-            printf("releasing bath mutex \n");
-            sem_post(&printSem);
+        if (waitingElves == 0){
             sem_post(&bath_mutex);
-            sleep(1);
         }
-        else if (countInBath == 0){
-            sem_wait(&printSem);
-            printf("releasing bath mutex \n");
-            sem_post(&printSem);
-            sem_post(&bath_mutex);
-            sleep(1);
-        }
+        
         sem_post(&elf_mutex);
+
+        sleep(2);
     }
 }
 
 void *dwarves(void *param){
     while (true) {
-        waitingDwarves++;
         sem_wait(&dwarf_mutex);
-        if (!(countInBath == bathMax)){
-            sem_wait(&bath_mutex);
-            waitingDwarves--;
-            countInBath++; //if room enter bathroom 
+        waitingDwarves++;
+        sem_wait(&printSem);
+        printf("one dwarf is waiting to potty\n");
+        sem_post(&printSem);
+        if (waitingDwarves == 1){
+            sem_wait(&bath_mutex);    
         }
         sem_post(&dwarf_mutex);
+        
+        countInBath++;  
 
         sem_wait(&printSem);
-        printf("one dwarf entered %d elfs in bathroom waiting elf: %d\n", countInBath, waitingElves);
+        printf("Dwarf is using bathroom (remainind %d)\n", (bathMax - countInBath));
         sem_post(&printSem);
         sleep(2);
 
         sem_wait(&dwarf_mutex);
         countInBath--;
-        
+        waitingDwarves--;
         sem_wait(&printSem);
-        printf("one elf entered %d dwarfs in bathroom waiting elf: %d\n", countInBath, waitingElves);
+        printf("Dwarf left bathroom (remainind %d)\n", (bathMax - countInBath));
         sem_post(&printSem);
-
-        if (waitingElves > 0){
-            countInBath = 0;
+        if (waitingDwarves == 0){
             sem_post(&bath_mutex);
-            sleep(1);
         }
-        else if (countInBath == 0){
-            sem_post(&bath_mutex);
-            sleep(1);
-        }
+        
         sem_post(&dwarf_mutex);
+
+        sleep(2);
     }
 }
