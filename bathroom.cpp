@@ -1,7 +1,11 @@
-// sources:
-//      stoi: https://www.geeksforgeeks.org/cpp/convert-string-to-int-in-cpp/ Accessed 11/8/25
-
-
+// File: bathroom.cpp
+// Author: Jackson Holt, Transy U
+// Course: CS 3074 Operating Systems
+//
+// This program is the implememtation that simulates a shared bathroom 
+// scenario involving three races: Elves, Dwarves, and Orcs. Each race can use 
+// the bathroom concurrently, but only one race can occupy it at a time. 
+// The program uses POSIX threads and semaphores to synchronize access among threads.
 #include <pthread.h> 
 #include <stdio.h> 
 #include <stdlib.h> 
@@ -13,6 +17,11 @@
 using namespace std;
 
 int main(int argc, char **argv) {
+    waitingDwarves = 0;
+    waitingElves = 0;
+    waitingOrcs = 0; 
+    countInBath = 0;
+
     if (argc >= 2){
         bathMax = stoi(argv[1]);
     }
